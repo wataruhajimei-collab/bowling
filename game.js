@@ -81,7 +81,7 @@ const I18N = {
 
 let currentLang = localStorage.getItem('strike_lane_lang') || 'ja';
 
-function t(key, params = {}) {
+function i18n(key, params = {}) {
   const dict = I18N[currentLang] || I18N.ja;
   let str = dict[key] || (I18N.ja[key] || '');
   for (const k in params) {
@@ -92,24 +92,24 @@ function t(key, params = {}) {
 
 function updateStaticText() {
   const subTitle = document.getElementById('sub-title');
-  if (subTitle) subTitle.textContent = t('subTitle');
+  if (subTitle) subTitle.textContent = i18n('subTitle');
 
   const step1 = document.getElementById('how-step-1');
-  if (step1) step1.innerHTML = t('step1');
+  if (step1) step1.innerHTML = i18n('step1');
 
   const step2 = document.getElementById('how-step-2');
   if (step2) {
-    step2.innerHTML = `${t('step2')}<br><small id="how-step-2-sub">${t('step2Sub')}</small>`;
+    step2.innerHTML = `${i18n('step2')}<br><small id="how-step-2-sub">${i18n('step2Sub')}</small>`;
   }
 
   const throwBtn = document.getElementById('throw-btn');
-  if (throwBtn) throwBtn.textContent = t('throwBtn');
+  if (throwBtn) throwBtn.textContent = i18n('throwBtn');
 
   const colPlayers = document.getElementById('col-header-players');
-  if (colPlayers) colPlayers.textContent = t('playersHeader');
+  if (colPlayers) colPlayers.textContent = i18n('playersHeader');
 
   const colGames = document.getElementById('col-header-games');
-  if (colGames) colGames.textContent = t('gamesHeader');
+  if (colGames) colGames.textContent = i18n('gamesHeader');
 
   const btnJa = document.getElementById('lang-ja');
   const btnEn = document.getElementById('lang-en');
@@ -1524,10 +1524,10 @@ class Renderer {
     ctx.restore();
   }
 
-  drawJGuide(jg, t) {
+  drawJGuide(jg, animTime) {
     const { ctx } = this;
     const pts = jg.points;
-    const pulse = 0.55 + 0.25 * Math.sin(t * 5);
+    const pulse = 0.55 + 0.25 * Math.sin(animTime * 5);
 
     ctx.save();
     ctx.lineCap = 'round';
@@ -1559,7 +1559,7 @@ class Renderer {
     ctx.stroke();
 
     // 2. Animated Direction Arrows moving UP along the straight line
-    const dashOff = (t * 80) % 24;
+    const dashOff = (animTime * 80) % 24;
     ctx.strokeStyle = 'rgba(255,255,255,0.7)';
     ctx.lineWidth = 3;
     ctx.setLineDash([8, 16]);
@@ -1616,7 +1616,7 @@ class Renderer {
 
     // 4. Start Indicator (Bottom)
     const sp = pts[0];
-    const pr = 1.0 + 0.18 * Math.sin(t * 6);
+    const pr = 1.0 + 0.18 * Math.sin(animTime * 6);
     ctx.beginPath();
     ctx.arc(sp.x, sp.y, 24 * pr, 0, Math.PI * 2);
     ctx.fillStyle = 'rgba(0,245,212,0.15)';
@@ -1636,7 +1636,7 @@ class Renderer {
     ctx.font = `bold ${12}px 'Outfit', sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'top';
-    ctx.fillText(t('guideStart'), sp.x, sp.y + 18);
+    ctx.fillText(i18n('guideStart'), sp.x, sp.y + 18);
 
     // 5. Top Arrow / Goal Indicator
     const ep = pts[pts.length - 1];
@@ -1652,7 +1652,7 @@ class Renderer {
     ctx.font = `bold ${12}px 'Outfit', sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'bottom';
-    ctx.fillText(t('guideSwipe'), ep.x, ep.y - 16);
+    ctx.fillText(i18n('guideSwipe'), ep.x, ep.y - 16);
 
     ctx.restore();
   }
@@ -1877,7 +1877,7 @@ class Game {
       localStorage.setItem('strike_lane_lang', lang);
       updateStaticText();
       if (this._curHintKey) {
-        this._setHint(t(this._curHintKey), this._curHintKey);
+        this._setHint(i18n(this._curHintKey), this._curHintKey);
       }
     };
     if (btnJa) btnJa.addEventListener('click', () => switchLang('ja'));
@@ -1889,7 +1889,7 @@ class Game {
       this.audio.init();
       const trimmedName = nameInput.value.trim();
       if (!trimmedName) {
-        alert(t('nameAlert'));
+        alert(i18n('nameAlert'));
         return;
       }
       localStorage.setItem('strike_lane_name', trimmedName);
@@ -1961,7 +1961,7 @@ class Game {
       const started = this.jGuide.touchStart(tx, ty);
       if (started) {
         this.state = STATE.THROWING;
-        this._setHint(t('hintSwipeQuickly'), 'hintSwipeQuickly');
+        this._setHint(i18n('hintSwipeQuickly'), 'hintSwipeQuickly');
       }
     } else if (this.state === STATE.THROWING) {
       // If they re-touch during throwing (shouldn't happen much)
@@ -1994,7 +1994,7 @@ class Game {
         // Invalid trace -> back to guide
         this.state = STATE.GUIDE;
         this.jGuide.progress = 0;
-        this._setHint(t('hintSwipeFirmly'), 'hintSwipeFirmly');
+        this._setHint(i18n('hintSwipeFirmly'), 'hintSwipeFirmly');
       }
     }
   }
@@ -2009,7 +2009,7 @@ class Game {
     this.state = STATE.GUIDE;
     this.jGuide.visible  = true;
     this.jGuide.progress = 0;
-    this._setHint(t('hintTrace'), 'hintTrace');
+    this._setHint(i18n('hintTrace'), 'hintTrace');
   }
 
   /* ── Game start / reset ── */
@@ -2036,7 +2036,7 @@ class Game {
     document.getElementById('frame-number').textContent = '1';
 
     renderScoreboard(this.score, this.curFrame);
-    this._setHint(t('hintAim'), 'hintAim');
+    this._setHint(i18n('hintAim'), 'hintAim');
   }
 
   /* ── Launch the ball ── */
@@ -2198,7 +2198,7 @@ class Game {
       document.getElementById('throw-btn').classList.remove('hidden');
 
       renderScoreboard(this.score, this.curFrame);
-      this._setHint(t('hintAim'), 'hintAim');
+      this._setHint(i18n('hintAim'), 'hintAim');
     } catch (e) {
       document.getElementById('debug-error').innerText += '\nCAUGHT ASYNC: ' + (e.stack || e.message);
     }
@@ -2211,19 +2211,19 @@ class Game {
     let emoji, title, comment;
     if (total === 300) {
       emoji = '🏆'; title = 'PERFECT!';
-      comment = t('comment300');
+      comment = i18n('comment300');
     } else if (total >= 200) {
       emoji = '🥇'; title = 'AMAZING!';
-      comment = t('comment200');
+      comment = i18n('comment200');
     } else if (total >= 150) {
       emoji = '🎳'; title = 'GREAT!';
-      comment = t('comment150');
+      comment = i18n('comment150');
     } else if (total >= 100) {
       emoji = '👍'; title = 'GOOD!';
-      comment = t('comment100');
+      comment = i18n('comment100');
     } else {
       emoji = '💪'; title = 'KEEP GOING!';
-      comment = t('commentUnder100');
+      comment = i18n('commentUnder100');
     }
 
     document.getElementById('result-emoji').textContent  = emoji;
@@ -2369,7 +2369,7 @@ class Game {
           </div>
           <div class="reg-avg-col">${entry.avg}</div>
           <div class="reg-best-col">🏆${entry.best}</div>
-          <div class="reg-count-col">${t('playersUnit', { count: entry.count })}</div>
+          <div class="reg-count-col">${i18n('playersUnit', { count: entry.count })}</div>
         `;
         list.appendChild(item);
       });
