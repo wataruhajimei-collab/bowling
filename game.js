@@ -49,6 +49,7 @@ const I18N = {
     playersHeader: '人数',
     gamesHeader: '試合',
     playersUnit: '{count}人',
+    leaderboardBtn: 'RANKING',
     comment300: '完璧なゲーム！パーフェクト達成！',
     comment200: '素晴らしいスコア！プロ級の実力！',
     comment150: 'とても良いゲームでした！',
@@ -57,20 +58,21 @@ const I18N = {
   },
   en: {
     subTitle: 'Mobile Bowling',
-    step1: 'Slide left / right to <strong>aim</strong>',
-    step2: 'Trace the line <strong>bottom-to-top to throw!</strong>',
-    step2Sub: 'Trace straight for a direct ball, curve for a hook',
+    step1: 'Drag left / right to <strong>aim</strong>',
+    step2: 'Swipe up along the line to <strong>throw!</strong>',
+    step2Sub: 'Go straight for a straight ball, curve it to hook',
     throwBtn: 'THROW!',
     guideStart: 'Start here',
     guideSwipe: 'Swipe Up!',
-    hintAim: 'Slide left or right to aim',
-    hintTrace: 'Trace the guide line from bottom to top!',
-    hintSwipeFirmly: 'Swipe firmly upward from "Start here"!',
-    hintSwipeQuickly: 'Swipe upward quickly!',
+    hintAim: 'Drag left or right to aim',
+    hintTrace: 'Swipe up along the guide line!',
+    hintSwipeFirmly: 'Swipe firmly up from "Start here"!',
+    hintSwipeQuickly: 'Swipe up quickly!',
     nameAlert: 'Please enter your name!',
     playersHeader: 'PLAYERS',
     gamesHeader: 'GAMES',
     playersUnit: '{count} players',
+    leaderboardBtn: 'LEADERBOARD',
     comment300: 'Perfect Game! 300 Achievement!',
     comment200: 'Incredible score! Pro-level bowling!',
     comment150: 'Great game! Well played!',
@@ -110,6 +112,12 @@ function updateStaticText() {
 
   const colGames = document.getElementById('col-header-games');
   if (colGames) colGames.textContent = i18n('gamesHeader');
+
+  const lbBtn1 = document.getElementById('show-leaderboard-btn');
+  if (lbBtn1) lbBtn1.textContent = i18n('leaderboardBtn');
+
+  const lbBtn2 = document.getElementById('result-leaderboard-btn');
+  if (lbBtn2) lbBtn2.textContent = i18n('leaderboardBtn');
 
   const btnJa = document.getElementById('lang-ja');
   const btnEn = document.getElementById('lang-en');
