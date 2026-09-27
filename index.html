@@ -1,0 +1,143 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Strike Lane">
+  <meta name="theme-color" content="#6c2bd9">
+  <meta name="description" content="スマホ縦持ちボウリング - Strike Lane">
+  <link rel="apple-touch-icon" href="icon.png">
+  <link rel="manifest" href="manifest.json">
+  <title>Strike Lane</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <!-- Error Display for Debugging -->
+  <div id="debug-error" style="position: absolute; top: 0; left: 0; z-index: 9999; background: red; color: white; width: 100%; font-size: 14px; white-space: pre-wrap;"></div>
+  <script>
+    window.onerror = function(msg, url, line, col, error) {
+      document.getElementById('debug-error').innerText += '\n' + msg + ' at ' + line + ':' + col;
+      if (error && error.stack) {
+        document.getElementById('debug-error').innerText += '\n' + error.stack;
+      }
+    };
+    window.addEventListener("unhandledrejection", function(e) {
+      document.getElementById('debug-error').innerText += '\nUnhandled Promise: ' + e.reason;
+    });
+  </script>
+  <div id="app">
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- スコアボード（上部） -->
+    <div id="scoreboard">
+      <div id="frame-cells"></div>
+      <div id="score-totals"></div>
+      <div id="game-info">
+        <span id="frame-label">FRAME</span>
+        <span id="frame-number">1</span>
+        <span id="throw-label">THROW</span>
+        <span id="throw-number">1</span>
+      </div>
+    </div>
+
+    <!-- ヒント表示 -->
+    <div id="hint-box">
+      <span id="hint-text"></span>
+    </div>
+
+    <!-- 投球ボタン -->
+    <button id="throw-btn" class="hidden">投球！</button>
+
+    <!-- タイトル画面 -->
+    <div id="title-screen">
+      <div class="title-inner">
+        <div id="pin-deco">🎳</div>
+        <h1 id="game-title">STRIKE<br>LANE</h1>
+        <p class="sub-title">スマホ縦持ちボウリング</p>
+        <div class="how-to">
+          <div class="how-step">
+            <div class="step-badge">1</div>
+            <div class="step-desc">左右スライドで<strong>ねらいを定める</strong></div>
+          </div>
+          <div class="how-step">
+            <div class="step-badge">2</div>
+            <div class="step-desc">ラインを<strong>下から上へなぞって投球！</strong><br><small>まっすぐなぞると直球、ズレるとカーブ</small></div>
+          </div>
+        </div>
+        <input type="text" id="player-name-input" class="name-input" placeholder="YOUR NAME" maxlength="12">
+        <div class="title-buttons">
+          <button id="start-btn">TAP TO PLAY</button>
+          <button id="show-leaderboard-btn" class="secondary-btn">RANKING</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ゲームオーバー画面 -->
+    <div id="result-screen" class="hidden">
+      <div class="result-inner">
+        <div id="result-emoji"></div>
+        <h2 id="result-title"></h2>
+        <div id="result-score-label">TOTAL SCORE</div>
+        <div id="result-score"></div>
+        <div id="result-comment"></div>
+        <div class="result-buttons">
+          <button id="retry-btn">PLAY AGAIN</button>
+          <button id="title-btn" class="secondary-btn">TITLE</button>
+          <button id="result-leaderboard-btn" class="secondary-btn">RANKING</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- ストライク / スペア バナー -->
+    <div id="bonus-banner" class="hidden"></div>
+
+    <!-- リーダーボード画面 -->
+    <div id="leaderboard-screen" class="hidden">
+      <div class="leaderboard-inner">
+        <h2 id="leaderboard-title">LEADERBOARD</h2>
+        <!-- タブ切替 -->
+        <div class="lb-tabs">
+          <button class="lb-tab active" id="tab-player">🎳 PLAYER</button>
+          <button class="lb-tab" id="tab-region">🌏 REGION</button>
+          <button class="lb-tab" id="tab-avg">📊 AVG</button>
+        </div>
+        <!-- 個人ランキング ヘッダー -->
+        <div class="leaderboard-headers" id="lb-header-player">
+          <span class="rank-col">RANK</span>
+          <span class="name-col">NAME</span>
+          <span class="score-col">SCORE</span>
+          <span class="city-col">CITY</span>
+          <span class="date-col">DATE</span>
+        </div>
+        <!-- 地域別ランキング ヘッダー -->
+        <div class="leaderboard-headers hidden" id="lb-header-region">
+          <span class="rank-col">RANK</span>
+          <span class="reg-city-col">CITY</span>
+          <span class="reg-avg-col">AVG</span>
+          <span class="reg-best-col">BEST</span>
+          <span class="reg-count-col">人数</span>
+        </div>
+        <!-- アベレージランキング ヘッダー -->
+        <div class="leaderboard-headers hidden" id="lb-header-avg">
+          <span class="rank-col">RANK</span>
+          <span class="avg-name-col">NAME</span>
+          <span class="avg-avg-col">AVG</span>
+          <span class="avg-best-col">BEST</span>
+          <span class="avg-games-col">試合</span>
+        </div>
+        <div id="leaderboard-list">
+          <div class="loading-text">Loading...</div>
+        </div>
+        <button id="close-leaderboard-btn" class="secondary-btn">BACK</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="game.js?v=8"></script>
+</body>
+</html>
