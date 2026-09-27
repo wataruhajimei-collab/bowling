@@ -215,6 +215,46 @@ html, body {
   z-index: 100;
 }
 
+/* ---- Language Switch ---- */
+.lang-switch {
+  position: absolute;
+  top: max(16px, env(safe-area-inset-top, 16px));
+  right: max(16px, env(safe-area-inset-right, 16px));
+  display: flex;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  padding: 3px;
+  gap: 2px;
+  z-index: 110;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.lang-btn {
+  background: transparent;
+  border: none;
+  color: var(--dim);
+  font-family: inherit;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 6px 14px;
+  border-radius: 16px;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  letter-spacing: 0.5px;
+}
+
+.lang-btn:active {
+  transform: scale(0.95);
+}
+
+.lang-btn.active {
+  background: linear-gradient(135deg, var(--cyan), var(--blue));
+  color: #050510;
+  box-shadow: 0 0 12px rgba(0, 245, 212, 0.45);
+}
+
 .title-inner {
   display: flex;
   flex-direction: column;

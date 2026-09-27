@@ -29,6 +29,102 @@ function _getOrCreatePlayerId(currentName = '') {
   return id;
 }
 
+/* ─────────────────────────────────────────────
+   INTERNATIONALIZATION (i18n)
+───────────────────────────────────────────── */
+const I18N = {
+  ja: {
+    subTitle: 'スマホボウリング',
+    step1: '左右スライドで<strong>ねらいを定める</strong>',
+    step2: 'ラインを<strong>下から上へなぞって投球！</strong>',
+    step2Sub: 'まっすぐなぞると直球、ズレるとカーブ',
+    throwBtn: '投球！',
+    guideStart: 'ここから',
+    guideSwipe: '上へスワイプ！',
+    hintAim: '左右にスライドして照準を合わせよう',
+    hintTrace: '照準ラインを下から上へなぞれ！',
+    hintSwipeFirmly: '「ここから」から上へしっかりスワイプ！',
+    hintSwipeQuickly: '上に向かってすばやくスワイプ！',
+    nameAlert: '名前を入力してください！',
+    playersHeader: '人数',
+    gamesHeader: '試合',
+    playersUnit: '{count}人',
+    comment300: '完璧なゲーム！パーフェクト達成！',
+    comment200: '素晴らしいスコア！プロ級の実力！',
+    comment150: 'とても良いゲームでした！',
+    comment100: '良い調子です！練習を続けよう！',
+    commentUnder100: 'また挑戦しよう！上達間違いなし！'
+  },
+  en: {
+    subTitle: 'Mobile Bowling',
+    step1: 'Slide left / right to <strong>aim</strong>',
+    step2: 'Trace the line <strong>bottom-to-top to throw!</strong>',
+    step2Sub: 'Trace straight for a direct ball, curve for a hook',
+    throwBtn: 'THROW!',
+    guideStart: 'Start here',
+    guideSwipe: 'Swipe Up!',
+    hintAim: 'Slide left or right to aim',
+    hintTrace: 'Trace the guide line from bottom to top!',
+    hintSwipeFirmly: 'Swipe firmly upward from "Start here"!',
+    hintSwipeQuickly: 'Swipe upward quickly!',
+    nameAlert: 'Please enter your name!',
+    playersHeader: 'PLAYERS',
+    gamesHeader: 'GAMES',
+    playersUnit: '{count} players',
+    comment300: 'Perfect Game! 300 Achievement!',
+    comment200: 'Incredible score! Pro-level bowling!',
+    comment150: 'Great game! Well played!',
+    comment100: 'Nice effort! Keep practicing!',
+    commentUnder100: "Keep trying! You'll get better!"
+  }
+};
+
+let currentLang = localStorage.getItem('strike_lane_lang') || 'ja';
+
+function t(key, params = {}) {
+  const dict = I18N[currentLang] || I18N.ja;
+  let str = dict[key] || (I18N.ja[key] || '');
+  for (const k in params) {
+    str = str.replace(`{${k}}`, params[k]);
+  }
+  return str;
+}
+
+function updateStaticText() {
+  const subTitle = document.getElementById('sub-title');
+  if (subTitle) subTitle.textContent = t('subTitle');
+
+  const step1 = document.getElementById('how-step-1');
+  if (step1) step1.innerHTML = t('step1');
+
+  const step2 = document.getElementById('how-step-2');
+  if (step2) {
+    step2.innerHTML = `${t('step2')}<br><small id="how-step-2-sub">${t('step2Sub')}</small>`;
+  }
+
+  const throwBtn = document.getElementById('throw-btn');
+  if (throwBtn) throwBtn.textContent = t('throwBtn');
+
+  const colPlayers = document.getElementById('col-header-players');
+  if (colPlayers) colPlayers.textContent = t('playersHeader');
+
+  const colGames = document.getElementById('col-header-games');
+  if (colGames) colGames.textContent = t('gamesHeader');
+
+  const btnJa = document.getElementById('lang-ja');
+  const btnEn = document.getElementById('lang-en');
+  if (btnJa) btnJa.classList.toggle('active', currentLang === 'ja');
+  if (btnEn) btnEn.classList.toggle('active', currentLang === 'en');
+}
+
+// Initial static text update
+if (typeof document !== 'undefined') {
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', updateStaticText);
+  } else {
+    updateStaticText();
+  }
+}
 
 /* ─────────────────────────────────────────────
    CONSTANTS
@@ -1540,7 +1636,7 @@ class Renderer {
     ctx.font = `bold ${12}px 'Outfit', sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'top';
-    ctx.fillText('ここから', sp.x, sp.y + 18);
+    ctx.fillText(t('guideStart'), sp.x, sp.y + 18);
 
     // 5. Top Arrow / Goal Indicator
     const ep = pts[pts.length - 1];
@@ -1556,7 +1652,7 @@ class Renderer {
     ctx.font = `bold ${12}px 'Outfit', sans-serif`;
     ctx.textAlign = 'center';
     ctx.textBaseline = 'bottom';
-    ctx.fillText('上へスワイプ！', ep.x, ep.y - 16);
+    ctx.fillText(t('guideSwipe'), ep.x, ep.y - 16);
 
     ctx.restore();
   }
@@ -1773,13 +1869,27 @@ class Game {
       localStorage.setItem('strike_lane_name', nameInput.value);
     });
 
+    // Language switch buttons
+    const btnJa = document.getElementById('lang-ja');
+    const btnEn = document.getElementById('lang-en');
+    const switchLang = (lang) => {
+      currentLang = lang;
+      localStorage.setItem('strike_lane_lang', lang);
+      updateStaticText();
+      if (this._curHintKey) {
+        this._setHint(t(this._curHintKey), this._curHintKey);
+      }
+    };
+    if (btnJa) btnJa.addEventListener('click', () => switchLang('ja'));
+    if (btnEn) btnEn.addEventListener('click', () => switchLang('en'));
+
     // Buttons (Use click events, touchstart isn't needed anymore with proper preventDefault scope)
     const startBtn = document.getElementById('start-btn');
     const onStart = (e) => {
       this.audio.init();
       const trimmedName = nameInput.value.trim();
       if (!trimmedName) {
-        alert('名前を入力してください！');
+        alert(t('nameAlert'));
         return;
       }
       localStorage.setItem('strike_lane_name', trimmedName);
@@ -1851,7 +1961,7 @@ class Game {
       const started = this.jGuide.touchStart(tx, ty);
       if (started) {
         this.state = STATE.THROWING;
-        this._setHint('上に向かってすばやくスワイプ！');
+        this._setHint(t('hintSwipeQuickly'), 'hintSwipeQuickly');
       }
     } else if (this.state === STATE.THROWING) {
       // If they re-touch during throwing (shouldn't happen much)
@@ -1884,7 +1994,7 @@ class Game {
         // Invalid trace -> back to guide
         this.state = STATE.GUIDE;
         this.jGuide.progress = 0;
-        this._setHint('「ここから」から上へしっかりスワイプ！');
+        this._setHint(t('hintSwipeFirmly'), 'hintSwipeFirmly');
       }
     }
   }
@@ -1899,7 +2009,7 @@ class Game {
     this.state = STATE.GUIDE;
     this.jGuide.visible  = true;
     this.jGuide.progress = 0;
-    this._setHint('照準ラインを下から上へなぞれ！');
+    this._setHint(t('hintTrace'), 'hintTrace');
   }
 
   /* ── Game start / reset ── */
@@ -1926,7 +2036,7 @@ class Game {
     document.getElementById('frame-number').textContent = '1';
 
     renderScoreboard(this.score, this.curFrame);
-    this._setHint('左右にスライドして照準を合わせよう');
+    this._setHint(t('hintAim'), 'hintAim');
   }
 
   /* ── Launch the ball ── */
@@ -2088,7 +2198,7 @@ class Game {
       document.getElementById('throw-btn').classList.remove('hidden');
 
       renderScoreboard(this.score, this.curFrame);
-      this._setHint('左右にスライドして照準を合わせよう');
+      this._setHint(t('hintAim'), 'hintAim');
     } catch (e) {
       document.getElementById('debug-error').innerText += '\nCAUGHT ASYNC: ' + (e.stack || e.message);
     }
@@ -2101,19 +2211,19 @@ class Game {
     let emoji, title, comment;
     if (total === 300) {
       emoji = '🏆'; title = 'PERFECT!';
-      comment = '完璧なゲーム！パーフェクト達成！';
+      comment = t('comment300');
     } else if (total >= 200) {
       emoji = '🥇'; title = 'AMAZING!';
-      comment = '素晴らしいスコア！プロ級の実力！';
+      comment = t('comment200');
     } else if (total >= 150) {
       emoji = '🎳'; title = 'GREAT!';
-      comment = 'とても良いゲームでした！';
+      comment = t('comment150');
     } else if (total >= 100) {
       emoji = '👍'; title = 'GOOD!';
-      comment = '良い調子です！練習を続けよう！';
+      comment = t('comment100');
     } else {
       emoji = '💪'; title = 'KEEP GOING!';
-      comment = 'また挑戦しよう！上達間違いなし！';
+      comment = t('commentUnder100');
     }
 
     document.getElementById('result-emoji').textContent  = emoji;
@@ -2140,7 +2250,8 @@ class Game {
   }
 
   /* ── Hint text ── */
-  _setHint(msg) {
+  _setHint(msg, key = null) {
+    this._curHintKey = key;
     document.getElementById('hint-text').textContent = msg;
   }
 
@@ -2258,7 +2369,7 @@ class Game {
           </div>
           <div class="reg-avg-col">${entry.avg}</div>
           <div class="reg-best-col">🏆${entry.best}</div>
-          <div class="reg-count-col">${entry.count}人</div>
+          <div class="reg-count-col">${t('playersUnit', { count: entry.count })}</div>
         `;
         list.appendChild(item);
       });

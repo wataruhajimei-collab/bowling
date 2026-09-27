@@ -14,7 +14,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;900&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="style.css">
+  <link rel="stylesheet" href="style.css?v=2">
 </head>
 <body>
   <!-- Error Display for Debugging -->
@@ -55,18 +55,23 @@
 
     <!-- タイトル画面 -->
     <div id="title-screen">
+      <!-- 言語切替スイッチ -->
+      <div id="lang-switch" class="lang-switch">
+        <button id="lang-ja" class="lang-btn" data-lang="ja">JP</button>
+        <button id="lang-en" class="lang-btn" data-lang="en">EN</button>
+      </div>
       <div class="title-inner">
         <div id="pin-deco">🎳</div>
         <h1 id="game-title">STRIKE<br>LANE</h1>
-        <p class="sub-title">スマホ縦持ちボウリング</p>
+        <p class="sub-title" id="sub-title">スマホボウリング</p>
         <div class="how-to">
           <div class="how-step">
             <div class="step-badge">1</div>
-            <div class="step-desc">左右スライドで<strong>ねらいを定める</strong></div>
+            <div class="step-desc" id="how-step-1">左右スライドで<strong>ねらいを定める</strong></div>
           </div>
           <div class="how-step">
             <div class="step-badge">2</div>
-            <div class="step-desc">ラインを<strong>下から上へなぞって投球！</strong><br><small>まっすぐなぞると直球、ズレるとカーブ</small></div>
+            <div class="step-desc" id="how-step-2">ラインを<strong>下から上へなぞって投球！</strong><br><small id="how-step-2-sub">まっすぐなぞると直球、ズレるとカーブ</small></div>
           </div>
         </div>
         <input type="text" id="player-name-input" class="name-input" placeholder="YOUR NAME" maxlength="12">
@@ -120,7 +125,7 @@
           <span class="reg-city-col">CITY</span>
           <span class="reg-avg-col">AVG</span>
           <span class="reg-best-col">BEST</span>
-          <span class="reg-count-col">人数</span>
+          <span class="reg-count-col" id="col-header-players">人数</span>
         </div>
         <!-- アベレージランキング ヘッダー -->
         <div class="leaderboard-headers hidden" id="lb-header-avg">
@@ -128,7 +133,7 @@
           <span class="avg-name-col">NAME</span>
           <span class="avg-avg-col">AVG</span>
           <span class="avg-best-col">BEST</span>
-          <span class="avg-games-col">試合</span>
+          <span class="avg-games-col" id="col-header-games">試合</span>
         </div>
         <div id="leaderboard-list">
           <div class="loading-text">Loading...</div>
@@ -138,6 +143,6 @@
     </div>
   </div>
 
-  <script src="game.js?v=8"></script>
+  <script src="game.js?v=9"></script>
 </body>
 </html>
